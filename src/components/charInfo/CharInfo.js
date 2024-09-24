@@ -1,18 +1,19 @@
-import './charInfo.scss';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
-import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types'
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
+
+import './charInfo.scss';
 
 const CharInfo = (props) => {
 
     const [char, setChar] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
 
-    const marvelService = new MarvelService();
+    const { loading, error, getCharacter, clearError } = useMarvelService();
 
     useEffect(() => {
         updateChar()
@@ -25,29 +26,15 @@ const CharInfo = (props) => {
             return;
         }
 
-        setLoading(loading => true);
-        setError(error => false);
-        onCharLoading();
-        marvelService
-            .getCharacter(charId)
+        clearError();
+        getCharacter(charId)
             .then(onCharLoaded)
-            .catch(onError)
+
     }
 
     const onCharLoaded = (char) => {
         setChar(char);
-        setLoading(false);
     }
-
-    const onCharLoading = () => {
-        setLoading(true)
-    }
-
-    const onError = () => {
-        setLoading(false);
-        setError(true)
-    }
-
 
     const skeleton = char || loading || error ? null : <Skeleton />;
     const errorMessage = error ? <ErrorMessage /> : null;
@@ -65,7 +52,7 @@ const CharInfo = (props) => {
 }
 
 const View = ({ char }) => {
-    const { name, description, thumbnail, homepage, wiki, comics } = char;
+    const { name, description, thumbnail, homepage, wiki, comics, resourceURI } = char;
 
     let imgStyle = { 'objectFit': 'cover' };
     if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
@@ -78,12 +65,12 @@ const View = ({ char }) => {
                 <div>
                     <div className="char__info-name">{name}</div>
                     <div className="char__btns">
-                        <a href={homepage} className="button button__main">
+                        <Link to={homepage} className="button button__main">
                             <div className="inner">homepage</div>
-                        </a>
-                        <a href={wiki} className="button button__secondary">
+                        </Link>
+                        <Link to={wiki} className="button button__secondary">
                             <div className="inner">Wiki</div>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -99,7 +86,10 @@ const View = ({ char }) => {
                         if (i > 9) return;
                         return (
                             <li key={i} className="char__comics-item">
-                                {item.name}
+                                <Link to={item.resourceURI}>
+                                    {item.name}
+                                </Link>
+
                             </li>
                         )
                     })
