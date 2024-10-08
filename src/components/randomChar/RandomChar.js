@@ -6,6 +6,8 @@ import mjolnir from '../../resources/img/mjolnir.png';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
+import React from 'react';
+
 const RandomChar = () => {
 
 
